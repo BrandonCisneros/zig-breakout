@@ -1,8 +1,10 @@
 const std = @import("std");
 const rl = @import("raylib");
 const colors = @import("colors.zig");
+const telemetry = @import("telemetry.zig");
 const vector2 = rl.Vector2;
-const telemtry_toggle: bool = true;
+const telemetry_toggle: bool = true;
+
 //--- Global Constants ---//
 const INIT_SCREEN_WIDTH: i32 = 1000;
 const INIT_SCREEN_HEIGHT: i32 = 1000;
@@ -21,7 +23,9 @@ pub fn main() !void {
 
     while (!rl.windowShouldClose()) {
         //---------- Stats & Telemetry ----------//
-        if (telemtry_toggle) {}
+        if (telemetry_toggle) {
+            telemetry.telemetry();
+        }
         //
         //---------- Drawing ----------//
         //
