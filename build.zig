@@ -21,30 +21,6 @@ pub fn build(b: *std.Build) void {
     // target and optimize options) will be listed when running `zig build --help`
     // in this directory.
 
-    // This creates a module, which represents a collection of source files alongside
-    // some compilation options, such as optimization mode and linked system libraries.
-    // Zig modules are the preferred way of making Zig code available to consumers.
-    // addModule defines a module that we intend to make available for importing
-    // to our consumers. We must give it a name because a Zig package can expose
-    // multiple modules and consumers will need to be able to specify which
-    // module they want to access.
-    
-    // Here we define an executable. An executable needs to have a root module
-    // which needs to expose a `main` function. While we could add a main function
-    // to the module defined above, it's sometimes preferable to split business
-    // business logic and the CLI into two separate modules.
-    //
-    // If your goal is to create a Zig library for others to use, consider if
-    // it might benefit from also exposing a CLI tool. A parser library for a
-    // data serialization format could also bundle a CLI syntax checker, for example.
-    //
-    // If instead your goal is to create an executable, consider if users might
-    // be interested in also being able to embed the core functionality of your
-    // program in their own executable in order to avoid the overhead involved in
-    // subprocessing your CLI tool.
-    //
-    // If neither case applies to you, feel free to delete the declaration you
-    // don't need and to put everything under a single module.
     const exe = b.addExecutable(.{
         .name = "zig_breakout",
         .root_module = b.createModule(.{
@@ -60,10 +36,14 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
             // List of modules available for import in source files part of the
             // root module.
-                   }),
+        }),
     });
 
+    //
+    //---------- MODULES ----------//
+    //
 
+    //--- Raylib
     const raylib_dep = b.dependency("raylib_zig", .{
         .target = target,
         .optimize = optimize,
@@ -72,14 +52,20 @@ pub fn build(b: *std.Build) void {
     const raylib = raylib_dep.module("raylib"); // main raylib module
     const raygui = raylib_dep.module("raygui"); // raygui module
     const raylib_artifact = raylib_dep.artifact("raylib"); // raylib C library
-    
 
     exe.linkLibrary(raylib_artifact);
     exe.root_module.addImport("raylib", raylib);
-    exe.root_module.addImport("raygui", raygui);exe.linkLibrary(raylib_artifact);
+    exe.root_module.addImport("raygui", raygui);
+    exe.linkLibrary(raylib_artifact);
 
-                                                           
-                                                           
+    //--- Colors
+    const colors = b.addModule("colors", .{ .root_source_file = .{ .src_path = "src/colors/colors.zig" } });
+    exe.root_module.addImport("colors", colors);
+
+    //--- Telemetry
+    const telemetry = b.addModule("telemetry", .{ .root_source_file = .{ .path = "src/telemetry/telemetry.zig" } });
+    exe.root_module.addImport("telemetry", telemetry);
+    exe.root_module.addImport("colors", colors);
 
     // This declares intent for the executable to be installed into the
     // install prefix when running `zig build` (i.e. when executing the default
@@ -116,9 +102,9 @@ pub fn build(b: *std.Build) void {
     // Creates an executable that will run `test` blocks from the provided module.
     // Here `mod` needs to define a target, which is why earlier we made sure to
     // set the releative field.
-    
+
     // A run step that will run the test executable.
-    
+
     // Creates an executable that will run `test` blocks from the executable's
     // root module. Note that test executables only test one module at a time,
     // hence why we have to create two separate ones.
@@ -133,7 +119,7 @@ pub fn build(b: *std.Build) void {
     // times and since the two run steps do not depend on one another, this will
     // make the two of them run in parallel.
     const test_step = b.step("test", "Run tests");
-    
+
     test_step.dependOn(&run_exe_tests.step);
 
     // Just like flags, top level steps are also listed in the `--help` menu.

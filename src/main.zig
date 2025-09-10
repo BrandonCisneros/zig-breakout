@@ -1,7 +1,5 @@
 const std = @import("std");
 const rl = @import("raylib");
-const colors = @import("colors.zig");
-const telemetry = @import("telemetry.zig");
 const vector2 = rl.Vector2;
 const telemetry_toggle: bool = true;
 
@@ -23,16 +21,14 @@ pub fn main() !void {
 
     while (!rl.windowShouldClose()) {
         //---------- Stats & Telemetry ----------//
-        if (telemetry_toggle) {
-            telemetry.telemetry();
-        }
+        if (telemetry_toggle) {}
         //
         //---------- Drawing ----------//
         //
         rl.beginDrawing();
         defer rl.endDrawing();
 
-        rl.clearBackground(colors.BASE_COLORS.white);
+        rl.clearBackground(.white);
         rl.drawCircle(400, 400, 50, .red);
     }
 }
