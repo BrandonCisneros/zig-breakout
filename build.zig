@@ -20,7 +20,17 @@ pub fn build(b: *std.Build) void {
     // of this build script using `b.option()`. All defined flags (including
     // target and optimize options) will be listed when running `zig build --help`
     // in this directory.
+    
 
+
+
+    //--- Colors
+    const colors = b.addModule("colors", .{ .root_source_file = .{ .src_path = "src/colors/colors.zig" } });
+    exe.root_module.addImport("colors", colors);
+
+    //--- Telemetry:q
+
+    const telemetry = b.addModule("telemetry", .{ .root_source_file = .{ .path = "src/telemetry/telemetry.zig" } });
     const exe = b.addExecutable(.{
         .name = "zig_breakout",
         .root_module = b.createModule(.{
@@ -64,8 +74,7 @@ pub fn build(b: *std.Build) void {
 
     //--- Telemetry
     const telemetry = b.addModule("telemetry", .{ .root_source_file = .{ .path = "src/telemetry/telemetry.zig" } });
-    exe.root_module.addImport("telemetry", telemetry);
-    exe.root_module.addImport("colors", colors);
+    
 
     // This declares intent for the executable to be installed into the
     // install prefix when running `zig build` (i.e. when executing the default
